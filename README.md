@@ -1,6 +1,6 @@
 # 桌游计分王（Score King）
 
-[English README](README.en.md)
+ 
 
 一个包含 Web 与 Android App 的多人多轮计分项目：
 - Web（Flask + HTML/JS）：浏览器里多人计分（默认端口 8080）
@@ -59,7 +59,7 @@ cd android_app
 
 ## 目录结构
 ```
-flip7_app_gpt5/
+score_king_app/
 ├── app.py                  # Flask 应用
 ├── run.py                  # 启动器
 ├── templates/index.html    # Web 界面
@@ -68,8 +68,7 @@ flip7_app_gpt5/
 │   ├── gradlew*            # Gradle Wrapper（已包含）
 │   └── build-apk.sh        # 一键构建脚本
 ├── requirements.txt        # Web 依赖
-├── README.md               # 中文说明（默认）
-└── README.en.md            # English README
+└── README.md               # 中文说明（默认）
 ```
 
 ## ANDROID_SDK_ROOT 来源

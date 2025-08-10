@@ -8,6 +8,7 @@ venv/
 
 # macOS
 .DS_Store
+._*
 
 # Android/Gradle
 android_app/.gradle/
