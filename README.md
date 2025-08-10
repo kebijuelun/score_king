@@ -126,6 +126,52 @@ cd android_app
 - JVM 版本错误：Gradle 9 需要 Java 17+；请确认 `java -version` 输出为 17 及以上，并设置了正确的 `JAVA_HOME`。
 - 找不到 sdkmanager：请在 Android Studio 的 SDK Manager 勾选 “Android SDK Command-line Tools”，或确认 `ANDROID_SDK_ROOT` 指向正确目录。
 
+### Android SDK 下载与安装说明
+- 方式一（推荐）：通过 Android Studio 图形界面
+  - 打开 Android Studio → More Actions → SDK Manager
+  - Android SDK → 选中并安装：
+    - Android SDK Platform-Tools（platform-tools）
+    - Android SDK Platform 34（platforms;android-34）
+    - Android SDK Build-Tools 34.0.0（build-tools;34.0.0）
+    - Android SDK Command-line Tools（cmdline-tools;latest）
+  - SDK 目录即 `ANDROID_SDK_ROOT`：
+    - Linux：`$HOME/Android/Sdk`
+    - macOS：`$HOME/Library/Android/sdk`
+    - Windows：`%USERPROFILE%\AppData\Local\Android\Sdk`
+
+- 方式二：命令行下载并安装
+  1) 获取 Command-line Tools 压缩包（按系统选择）：
+     - Linux：`https://dl.google.com/android/repository/commandlinetools-linux-latest.zip`
+     - macOS：`https://dl.google.com/android/repository/commandlinetools-mac-2024-04.zip` 或 `commandlinetools-mac-latest.zip`
+     - Windows：`https://dl.google.com/android/repository/commandlinetools-win-2024-04.zip` 或 `commandlinetools-win-latest.zip`
+     - 网络受限可选择国内镜像站点（请按镜像提供方文档选择对应路径）。
+  2) 解压到规范目录（注意必须是 `cmdline-tools/latest` 结构）：
+     - Linux/macOS：
+       ```bash
+       mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+       unzip commandlinetools-*-latest.zip -d "$ANDROID_SDK_ROOT"
+       mv "$ANDROID_SDK_ROOT/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest" 2>/dev/null || \
+       mv "$ANDROID_SDK_ROOT/cmdline-tools"/* "$ANDROID_SDK_ROOT/cmdline-tools/latest" 2>/dev/null || true
+       ```
+     - Windows：将压缩包内容解压至 `%ANDROID_SDK_ROOT%\cmdline-tools\latest\`
+  3) 使用 sdkmanager 接受协议并下载组件：
+     ```bash
+     yes | sdkmanager --licenses --sdk_root="$ANDROID_SDK_ROOT"
+     sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+       "platform-tools" "platforms;android-34" "build-tools;34.0.0" "cmdline-tools;latest"
+     ```
+  4) 网络受限时的代理设置（可选）：
+     - Linux/macOS：
+       ```bash
+       export HTTPS_PROXY=http://127.0.0.1:7890
+       export HTTP_PROXY=http://127.0.0.1:7890
+       ```
+     - Windows（PowerShell，新窗口生效）：
+       ```powershell
+       setx HTTPS_PROXY http://127.0.0.1:7890
+       setx HTTP_PROXY http://127.0.0.1:7890
+       ```
+
 ## 目录结构
 ```
 score_king_app/
