@@ -35,14 +35,20 @@ jobs:
         working-directory: android_app
         run: ./gradlew --no-daemon assembleDebug
 
+      - name: Rename APK for release asset
+        working-directory: android_app
+        run: |
+          mkdir -p app/build/outputs/apk/release_asset
+          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/release_asset/Score_King-${{ github.ref_name }}-android-debug.apk
+
       - name: Create GitHub Release and upload APK
         uses: softprops/action-gh-release@v2
         with:
           name: Score King ${{ github.ref_name }}
           body_path: RELEASE_NOTES.md
           files: |
-            android_app/app/build/outputs/apk/debug/app-debug.apk
+            android_app/app/build/outputs/apk/release_asset/Score_King-${{ github.ref_name }}-android-debug.apk
           draft: false
-          prerelease: true
+          prerelease: false
 
 

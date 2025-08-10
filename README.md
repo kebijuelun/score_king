@@ -19,6 +19,9 @@
 - Android 版
 ![app demo](./images/score_king_app.png)
 
+### 下载 APK
+- 前往 Releases 页面下载最新 APK，文件名类似：`Score_King-vX.Y.Z-android-debug.apk`
+
 ## 功能
 - 添加/移除玩家
 - 多轮累积计分
