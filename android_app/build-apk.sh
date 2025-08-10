@@ -25,8 +25,9 @@ fi
 chmod +x ./gradlew
 ./gradlew --no-daemon assembleDebug
 
-APK_PATH="app/build/outputs/apk/debug/score_king.apk"
-if [[ -f "$APK_PATH" ]]; then
+# Locate the latest debug APK
+APK_PATH=$(ls -t app/build/outputs/apk/debug/*.apk 2>/dev/null | head -n 1 || true)
+if [[ -n "$APK_PATH" && -f "$APK_PATH" ]]; then
   echo "[✓] 构建成功: $APK_PATH"
 else
   echo "[!] 构建未生成预期 APK，请检查上方日志。"

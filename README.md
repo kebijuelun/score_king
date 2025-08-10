@@ -2,9 +2,22 @@
 
 
 
-一个包含 Web 与 Android App 的多人多轮计分项目：
-- Web（Flask + HTML/JS）：浏览器里多人计分（默认端口 8080）
+**一个包含 Web 与 Android App 的多人多轮计分项目**：
+- Web（Flask + HTML/JS）：浏览器里桌游计分王（默认端口 8080）
 - Android App（Kotlin + Jetpack Compose）：原生离线计分应用（应用名：score_king / 桌游计分王）
+
+可以使用的桌游有：
+- Flip7（7翻）
+- Catan（卡坦岛）
+- Splendor（璀璨宝石）
+- Uno（乌诺）
+- 等其他类似需要计分的桌游...
+
+## Demo
+- Web 版
+![web demo](./images/score_king_web.png)
+- Android 版
+![app demo](./images/score_king_app.png)
 
 ## 功能
 - 添加/移除玩家
@@ -15,7 +28,12 @@
 
 ## 快速开始
 
+在开始之前，请先选择你的使用场景：
+- 仅使用 Web 版：无需安装 JDK/Android SDK，直接跳到“Web 版”章节
+- 构建/运行 Android 版：需要先完成下面的“环境准备”，这些步骤仅用于 Android 构建
+
 ### 环境准备（Linux）
+说明：以下步骤用于 Android App 构建；仅使用 Web 版可跳过此节，直接前往“Web 版”。
 - 安装 JDK 17 与常用工具：
   ```bash
   sudo apt-get update
@@ -28,7 +46,7 @@
   export PATH="$JAVA_HOME/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
   java -version
   ```
-- 安装 Android SDK 命令行工具与组件（首次执行需较长时间）：
+- 安装 Android SDK 命令行工具与组件（首次执行需较长时间；详细指引见下方“Android SDK 下载与安装说明”）：
   ```bash
   # 如果缺少 sdkmanager，可先安装 Android Studio 并在 SDK Manager 勾选 Command-line Tools
   yes | sdkmanager --licenses --sdk_root="$ANDROID_SDK_ROOT"
@@ -44,6 +62,7 @@
   ```
 
 ### 环境准备（macOS）
+说明：以下步骤用于 Android App 构建；仅使用 Web 版可跳过此节，直接前往“Web 版”。
 - 安装 JDK 17（Homebrew）：
   ```bash
   brew install openjdk@17
@@ -65,6 +84,7 @@
   ```
 
 ### 环境准备（Windows）
+说明：以下步骤用于 Android App 构建；仅使用 Web 版可跳过此节，直接前往“Web 版”。
 - 安装 JDK 17 与 Android Studio：
   - 建议从 Oracle/OpenJDK 官方或使用包管理器（如 winget/choco）安装 JDK 17
   - 安装 Android Studio，并在 SDK Manager 中安装 "Android SDK Command-line Tools"
@@ -84,14 +104,21 @@
   ```
 
 ### Web 版
+要求：Python 3.9+（建议使用虚拟环境）
+
 ```bash
-# 安装依赖
+# 1) 创建并激活虚拟环境
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2) 安装依赖
 pip install -r requirements.txt
 
-# 启动（任选其一）
+# 3) 启动（任选其一）
 python run.py
 # 或
 python app.py
+
 # 访问: http://localhost:8080
 ```
 
@@ -107,6 +134,8 @@ python app.py
 # 1) 确保使用 Java 17
 export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 export PATH="$JAVA_HOME/bin:$PATH"
+# 确保 ANDROID_SDK_ROOT 指向已安装的 Android SDK 目录（如已在上文持久化可忽略）
+export ANDROID_SDK_ROOT="$HOME/Android/Sdk"
 
 # 2) 构建 APK
 cd android_app
@@ -193,4 +222,4 @@ score_king_app/
   - 打开 Android Studio → More Actions → SDK Manager → 勾选 “Android SDK Command-line Tools”
 
 ## License
-本项目用于学习与演示目的。
+本项目采用 MIT License 开源，详见仓库中的 `LICENSE` 文件。

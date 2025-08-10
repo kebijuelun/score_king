@@ -34,18 +34,18 @@ def add_player():
     """Add a new player to the game"""
     data = request.get_json()
     player_name = data.get('name', '').strip()
-    
+
     if not player_name:
         return jsonify({'error': '玩家名称不能为空'}), 400
-    
+
     if player_name in game_state['players']:
         return jsonify({'error': '玩家已存在'}), 400
-    
+
     game_state['players'][player_name] = {
         'score': 0,
         'rounds': []
     }
-    
+
     return jsonify({
         'success': True,
         'players': game_state['players'],
@@ -58,24 +58,24 @@ def add_score():
     data = request.get_json()
     player_name = data.get('player')
     round_score = data.get('score', 0)
-    
+
     if player_name not in game_state['players']:
         return jsonify({'error': '玩家不存在'}), 400
-    
+
     try:
         round_score = int(round_score)
     except (ValueError, TypeError):
         return jsonify({'error': '分数必须是数字'}), 400
-    
+
     # Add score to player
     game_state['players'][player_name]['score'] += round_score
     game_state['players'][player_name]['rounds'].append(round_score)
-    
+
     # Check for winner
     if game_state['players'][player_name]['score'] >= game_state['win_threshold']:
         game_state['winner'] = player_name
         game_state['game_over'] = True
-    
+
     return jsonify({
         'success': True,
         'players': game_state['players'],
@@ -88,25 +88,25 @@ def set_threshold():
     """Set winning score threshold"""
     data = request.get_json()
     threshold = data.get('threshold')
-    
+
     try:
         threshold = int(threshold)
         if threshold <= 0:
             raise ValueError
     except (ValueError, TypeError):
         return jsonify({'error': '阈值必须是正整数'}), 400
-    
+
     game_state['win_threshold'] = threshold
     game_state['winner'] = None
     game_state['game_over'] = False
-    
+
     # Recheck for winners with new threshold
     for player_name, player_data in game_state['players'].items():
         if player_data['score'] >= threshold:
             game_state['winner'] = player_name
             game_state['game_over'] = True
             break
-    
+
     return jsonify({
         'success': True,
         'win_threshold': game_state['win_threshold'],
@@ -120,7 +120,7 @@ def reset_game():
     game_state['players'] = {}
     game_state['winner'] = None
     game_state['game_over'] = False
-    
+
     return jsonify({
         'success': True,
         'message': '游戏已重置',
@@ -133,10 +133,10 @@ def reset_scores():
     for player_data in game_state['players'].values():
         player_data['score'] = 0
         player_data['rounds'] = []
-    
+
     game_state['winner'] = None
     game_state['game_over'] = False
-    
+
     return jsonify({
         'success': True,
         'message': '所有分数已清零',
@@ -148,12 +148,12 @@ def remove_player():
     """Remove a player from the game"""
     data = request.get_json()
     player_name = data.get('player')
-    
+
     if player_name not in game_state['players']:
         return jsonify({'error': '玩家不存在'}), 400
-    
+
     del game_state['players'][player_name]
-    
+
     # Reset winner if removed player was the winner
     if game_state['winner'] == player_name:
         game_state['winner'] = None
@@ -164,7 +164,7 @@ def remove_player():
                 game_state['winner'] = name
                 game_state['game_over'] = True
                 break
-    
+
     return jsonify({
         'success': True,
         'players': game_state['players'],
@@ -185,5 +185,13 @@ def get_game_state():
 if __name__ == '__main__':
     # Create templates directory if it doesn't exist
     os.makedirs('templates', exist_ok=True)
-    
-    app.run(debug=True, host='0.0.0.0', port=8080)
+
+    # Respect environment variables with safe defaults
+    debug_mode = os.getenv('FLASK_DEBUG', '0') == '1'
+    host = os.getenv('HOST', '127.0.0.1')
+    try:
+        port = int(os.getenv('PORT', '8080'))
+    except ValueError:
+        port = 8080
+
+    app.run(debug=debug_mode, host=host, port=port)

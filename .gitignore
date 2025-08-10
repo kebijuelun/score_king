@@ -5,6 +5,10 @@ __pycache__/
 .venv/
 venv/
 .env
+data/
+.vscode/
+.idea/
+.claude
 
 # macOS
 .DS_Store
