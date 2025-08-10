@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多人计分游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .game-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .control-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+
+        .control-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3em;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #1e7e34);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ffc107, #e0a800);
+            color: #212529;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .threshold-display {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .player-card {
+            background: white;
+            border: 3px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .player-card.winner {
+            border-color: #28a745;
+            background: linear-gradient(45deg, #d4edda, #c3e6cb);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .player-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .player-score {
+            font-size: 2em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .winner-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            transform: rotate(15deg);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .score-input-section {
+            margin-top: 15px;
+        }
+
+        .rounds-history {
+            margin-top: 15px;
+            max-height: 100px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .round-item {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 3px 8px;
+            margin: 2px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        .message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .game-over-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .game-over-modal {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: bounceIn 0.6s;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .winner-announcement {
+            font-size: 3em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .game-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 多人计分游戏</h1>
+            <p>支持多轮累积计分，先达到目标分数者获胜！</p>
+        </div>
+
+        <div class="content">
+            <!-- Threshold Display -->
+            <div class="threshold-display">
+                🏆 当前胜利阈值：<span id="currentThreshold">200</span> 分
+            </div>
+
+            <!-- Game Controls -->
+            <div class="game-controls">
+                <!-- Add Player Section -->
+                <div class="control-section">
+                    <h3>👥 添加玩家</h3>
+                    <div class="input-group">
+                        <input type="text" id="playerNameInput" placeholder="输入玩家姓名" maxlength="20">
+                        <button class="btn btn-primary" onclick="addPlayer()">添加玩家</button>
+                    </div>
+                </div>
+
+                <!-- Set Threshold Section -->
+                <div class="control-section">
+                    <h3>🎯 设置胜利阈值</h3>
+                    <div class="input-group">
+                        <input type="number" id="thresholdInput" placeholder="输入分数阈值" min="1" value="200">
+                        <button class="btn btn-warning" onclick="setThreshold()">设置阈值</button>
+                    </div>
+                </div>
+
+                <!-- Game Actions Section -->
+                <div class="control-section">
+                    <h3>🎮 游戏操作</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn btn-success" onclick="resetScores()">清零分数</button>
+                        <button class="btn btn-danger" onclick="resetGame()">重置游戏</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Display -->
+            <div id="messageArea"></div>
+
+            <!-- Players Grid -->
+            <div id="playersGrid" class="players-grid">
+                <!-- Player cards will be dynamically generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameOverOverlay" class="game-over-overlay hidden">
+        <div class="game-over-modal">
+            <div class="winner-announcement">🎉</div>
+            <h2 id="winnerText">恭喜获胜！</h2>
+            <p style="margin: 20px 0; font-size: 1.2em;">游戏结束</p>
+            <button class="btn btn-primary" onclick="closeGameOverModal()">继续游戏</button>
+            <button class="btn btn-success" onclick="resetScores(); closeGameOverModal()">开始新局</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state management
+        let gameState = {
+            players: {},
+            win_threshold: 200,
+            winner: null,
+            game_over: false
+        };
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGameState();
+            
+            // Add enter key support for inputs
+            document.getElementById('playerNameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addPlayer();
+            });
+            
+            document.getElementById('thresholdInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') setThreshold();
+            });
+        });
+
+        // API call helper function
+        async function apiCall(endpoint, data = null, method = 'GET') {
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(endpoint, options);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'API调用失败');
+                }
+                
+                return result;
+            } catch (error) {
+                showMessage(error.message, 'error');
+                throw error;
+            }
+        }
+
+        // Load current game state
+        async function loadGameState() {
+            try {
+                const result = await apiCall('/api/game_state');
+                gameState = result;
+                updateDisplay();
+            } catch (error) {
+                console.error('Failed to load game state:', error);
+            }
+        }
+
+        // Add a new player
+        async function addPlayer() {
+            const nameInput = document.getElementById('playerNameInput');
+            const playerName = nameInput.value.trim();
+            
+            if (!playerName) {
+                showMessage('请输入玩家姓名', 'error');
+                return;
+            }
+            
+            try {
+                const result = await apiCall('/api/add_player', { name: playerName }, 'POST');
+                gameState.players = result.players;
+                nameInput.value = '';
+                updateDisplay();
+                showMessage(result.message, 'success');
+            } catch (error) {
+                // Error already handled by apiCall
+            }
+        }
+
+        // Add score for a player
+        async function addScore(playerName) {
+            const scoreInput = document.getElementById(`score-${playerName}`);
+            const score = parseInt(scoreInput.value) || 0;
+            
+            if (score === 0) {
+                showMessage('请输入有效分数', 'error');
+                return;
+            }
+            
+            try {
+                const result = await apiCall('/api/add_score', { 
+                    player: playerName, 
+                    score: score 
+                }, 'POST');
+                
+                gameState = {
+                    players: result.players,
+                    winner: result.winner,
+                    game_over: result.game_over,
+                    win_threshold: gameState.win_threshold
+                };
+                
+                scoreInput.value = '';
+                updateDisplay();
+                
+                if (result.game_over && result.winner) {
+                    showGameOverModal(result.winner);
+                }
+                
+                showMessage(`${playerName} 获得 ${score} 分`, 'success');
+            } catch (error) {
+                // Error already handled by apiCall
+            }
+        }
+
+        // Set winning threshold
+        async function setThreshold() {
+            const thresholdInput = document.getElementById('thresholdInput');
+            const threshold = parseInt(thresholdInput.value);
+            
+            if (!threshold || threshold <= 0) {
+                showMessage('请输入有效的阈值', 'error');
+                return;
+            }
+            
+            try {
+                const result = await apiCall('/api/set_threshold', { threshold: threshold }, 'POST');
+                gameState.win_threshold = result.win_threshold;
+                gameState.winner = result.winner;
+                gameState.game_over = result.game_over;
+                
+                updateDisplay();
+                showMessage(`胜利阈值已设置为 ${threshold} 分`, 'success');
+                
+                if (result.game_over && result.winner) {
+                    showGameOverModal(result.winner);
+                }
+            } catch (error) {
+                // Error already handled by apiCall
+            }
+        }
+
+        // Reset all scores
+        async function resetScores() {
+            if (!confirm('确定要清零所有玩家的分数吗？')) return;
+            
+            try {
+                const result = await apiCall('/api/reset_scores', {}, 'POST');
+                gameState.players = result.players;
+                gameState.winner = null;
+                gameState.game_over = false;
+                updateDisplay();
+                showMessage(result.message, 'success');
+            } catch (error) {
+                // Error already handled by apiCall
+            }
+        }
+
+        // Reset entire game
+        async function resetGame() {
+            if (!confirm('确定要重置整个游戏吗？这将删除所有玩家。')) return;
+            
+            try {
+                const result = await apiCall('/api/reset_game', {}, 'POST');
+                gameState.players = result.players;
+                gameState.winner = null;
+                gameState.game_over = false;
+                updateDisplay();
+                showMessage(result.message, 'success');
+            } catch (error) {
+                // Error already handled by apiCall
+            }
+        }
+
+        // Remove a player
+        async function removePlayer(playerName) {
+            if (!confirm(`确定要移除玩家 ${playerName} 吗？`)) return;
+            
+            try {
+                const result = await apiCall('/api/remove_player', { player: playerName }, 'POST');
+                gameState.players = result.players;
+                gameState.winner = result.winner;
+                gameState.game_over = result.game_over;
+                updateDisplay();
+                showMessage(`玩家 ${playerName} 已移除`, 'success');
+            } catch (error) {
+                // Error already handled by apiCall
+            }
+        }
+
+        // Update the display
+        function updateDisplay() {
+            updateThresholdDisplay();
+            updatePlayersGrid();
+        }
+
+        // Update threshold display
+        function updateThresholdDisplay() {
+            document.getElementById('currentThreshold').textContent = gameState.win_threshold;
+            document.getElementById('thresholdInput').value = gameState.win_threshold;
+        }
+
+        // Update players grid
+        function updatePlayersGrid() {
+            const grid = document.getElementById('playersGrid');
+            grid.innerHTML = '';
+            
+            if (Object.keys(gameState.players).length === 0) {
+                grid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #666; font-size: 1.2em;">暂无玩家，请添加玩家开始游戏</p>';
+                return;
+            }
+            
+            for (const [playerName, playerData] of Object.entries(gameState.players)) {
+                const playerCard = createPlayerCard(playerName, playerData);
+                grid.appendChild(playerCard);
+            }
+        }
+
+        // Create a player card
+        function createPlayerCard(playerName, playerData) {
+            const card = document.createElement('div');
+            card.className = `player-card ${gameState.winner === playerName ? 'winner' : ''}`;
+            
+            const progressPercentage = Math.min((playerData.score / gameState.win_threshold) * 100, 100);
+            
+            card.innerHTML = `
+                ${gameState.winner === playerName ? '<div class="winner-badge">🏆 获胜者</div>' : ''}
+                <div class="player-header">
+                    <div class="player-name">${playerName}</div>
+                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="removePlayer('${playerName}')">移除</button>
+                </div>
+                <div class="player-score">${playerData.score}</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+                </div>
+                <div style="text-align: center; margin: 10px 0; color: #666;">
+                    ${playerData.score} / ${gameState.win_threshold} (${progressPercentage.toFixed(1)}%)
+                </div>
+                <div class="score-input-section">
+                    <div class="input-group">
+                        <input type="number" id="score-${playerName}" placeholder="输入本轮分数" min="0">
+                        <button class="btn btn-success" onclick="addScore('${playerName}')">添加分数</button>
+                    </div>
+                </div>
+                ${playerData.rounds.length > 0 ? `
+                <div class="rounds-history">
+                    <strong>历史得分：</strong>
+                    ${playerData.rounds.map(score => `<span class="round-item">${score}</span>`).join('')}
+                </div>
+                ` : ''}
+            `;
+            
+            // Add enter key support for score input
+            const scoreInput = card.querySelector(`#score-${playerName}`);
+            scoreInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addScore(playerName);
+            });
+            
+            return card;
+        }
+
+        // Show message to user
+        function showMessage(message, type = 'success') {
+            const messageArea = document.getElementById('messageArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            
+            messageArea.innerHTML = '';
+            messageArea.appendChild(messageDiv);
+            
+            // Auto-hide message after 3 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        // Show game over modal
+        function showGameOverModal(winner) {
+            document.getElementById('winnerText').textContent = `恭喜 ${winner} 获胜！`;
+            document.getElementById('gameOverOverlay').classList.remove('hidden');
+        }
+
+        // Close game over modal
+        function closeGameOverModal() {
+            document.getElementById('gameOverOverlay').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

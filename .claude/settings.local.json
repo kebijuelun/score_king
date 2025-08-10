@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod:*)",
+      "Bash(./build_apk.sh:*)",
+      "Bash(ls:*)",
+      "Bash(brew install:*)",
+      "Bash(export:*)",
+      "Bash(java:*)",
+      "Bash(find:*)",
+      "Bash(pip3 install:*)",
+      "Bash(buildozer --version)",
+      "Bash(buildozer android:*)",
+      "Bash(pkill:*)",
+      "Bash(rm:*)",
+      "Bash(true)",
+      "Bash(./build_apk_fast.sh:*)",
+      "Bash(./debug_build.sh:*)",
+      "Bash(./build_final.sh:*)",
+      "Bash(./fix_openssl_manually.sh:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": []
+  }
+}

@@ -1,0 +1,20 @@
+# Android APK Build Requirements
+# Android APK 构建依赖
+
+# Core frameworks
+kivy==2.2.1
+kivymd>=1.1.1
+
+# Build tools
+buildozer>=1.4.0
+cython>=0.29.0
+
+# Image processing for icons
+Pillow>=9.0.0
+
+# Additional utilities
+plyer>=2.1.0
+
+# Development dependencies (optional)
+# pytest>=7.0.0
+# black>=22.0.0
