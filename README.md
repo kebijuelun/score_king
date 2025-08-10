@@ -215,6 +215,33 @@ score_king_app/
 └── README.md               # 中文说明（默认）
 ```
 
+## 发布到 GitHub Release（含 APK）
+本仓库已配置自动发布流程：在推送形如 `vX.Y.Z` 的 tag 时，GitHub Actions 将自动构建 Android Debug APK 并创建 Release，附带 `app-debug.apk`。
+
+### 一次性准备
+- 确认你对仓库有 `contents: write` 权限（用于创建 Release）。
+- 可编辑根目录 `RELEASE_NOTES.md` 作为本次发布的说明体（工作流会引用它）。
+
+### 发布步骤
+```bash
+# 1) 更新版本号（可选，位于 android_app/app/build.gradle.kts 的 versionName/versionCode）
+
+# 2) 提交代码
+git add -A && git commit -m "chore: release vX.Y.Z"
+
+# 3) 打标签并推送
+git tag vX.Y.Z
+git push origin vX.Y.Z
+
+# 4) 等待 GitHub Actions 完成（2-8 分钟）
+#    完成后会在 Releases 中看到本次发布，附件含 APK
+```
+
+说明：当前工作流打包 `debug` APK，签名为调试签名，适合测试分发。如需发布 `release` APK 并使用自有签名，请：
+- 在 `android_app/app/build.gradle.kts` 中配置 `signingConfigs` 与 `buildTypes.release` 的签名；
+- 修改工作流 `.github/workflows/release.yml` 将构建命令改为 `./gradlew assembleRelease`，并上传 `app-release.apk`；
+- 将签名 keystore/密钥放入 GitHub Secrets，并在构建时注入。
+
 ## ANDROID_SDK_ROOT 说明
 - Linux 常用位置：`$HOME/Android/Sdk`
 - macOS 常用位置：`$HOME/Library/Android/sdk`
